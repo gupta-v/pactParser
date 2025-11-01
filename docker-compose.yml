@@ -1,0 +1,76 @@
+# version: '3.8' # This line is obsolete, as the warning said
+services:
+  # --- DATABASE SERVICES ---
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  # --- BACKEND API (FastAPI) ---
+  backend-api:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    ports:
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    volumes:
+      - ./backend/uploads:/app/uploads
+    env_file:
+      - ./backend/.env
+    # --- THIS IS THE FIX ---
+    # Override the .env variables with Docker-specific values
+    environment:
+      - MONGO_CONNECTION_STRING=mongodb://mongo:27017
+      - REDIS_CONNECTION_STRING=redis://redis:6379/0
+    # --- END FIX ---
+    depends_on:
+      - mongo
+      - redis
+
+  # --- BACKEND WORKER (Celery) ---
+  backend-worker:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    command: celery -A app.celery_app.celery_app worker --loglevel=info -P eventlet
+    volumes:
+      - ./backend/uploads:/app/uploads
+    env_file:
+      - ./backend/.env
+    # --- THIS IS THE FIX ---
+    # Override the .env variables with Docker-specific values
+    environment:
+      - MONGO_CONNECTION_STRING=mongodb://mongo:27017
+      - REDIS_CONNECTION_STRING=redis://redis:6379/0
+    # --- END FIX ---
+    depends_on:
+      - mongo
+      - redis
+      - backend-api
+
+  # --- FRONTEND (Streamlit) ---
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      # This is correct: it uses the Docker service name
+      - API_BASE_URL=http://backend-api:8000
+    depends_on:
+      - backend-api
+
+volumes:
+  mongo-data:
+  redis-data:

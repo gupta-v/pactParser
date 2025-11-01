@@ -1,0 +1,19 @@
+# backend
+fastapi
+uvicorn[standard]
+pymongo
+celery
+redis
+langchain
+langchain-groq 
+pypdf
+python-dotenv   
+eventlet
+pydantic-settings  
+starlette
+python-multipart
+
+# frontend
+streamlit
+requests
+pandas
