@@ -16,6 +16,7 @@ def show_contract_details(contract_id: str, filename: str):
     """Shows the floating pop-up with contract details."""
     try:
         data_response = requests.get(f"{API_BASE_URL}/contracts/{contract_id}")
+        
         if data_response.status_code == 200:
             full_data = data_response.json()
             col1, col2 = st.columns(2)
@@ -47,9 +48,23 @@ def show_contract_details(contract_id: str, filename: str):
             with tab_raw:
                 st.json(full_data.get('extracted_data'))
         else:
-            st.error(f"Failed to fetch results: {data_response.json().get('detail')}")
+            # --- START: THIS IS THE FIX ---
+            # Try to parse the JSON error detail from FastAPI,
+            # but fall back to raw text if it's not JSON (e.g., a 500 error HTML page)
+            error_detail = f"Status Code {data_response.status_code}"
+            try:
+                error_detail = data_response.json().get('detail', data_response.text)
+            except requests.exceptions.JSONDecodeError:
+                error_detail = data_response.text
+            
+            st.error(f"Failed to fetch results: {error_detail}")
+            # --- END: THIS IS THE FIX ---
+
+    except requests.exceptions.ConnectionError:
+        st.error(f"Connection Error: Could not connect to API at {API_BASE_URL}")
     except Exception as e:
-        st.error(f"An error occurred while fetching results: {e}")
+        # This will now catch other unexpected errors
+        st.error(f"A client-side error occurred: {e}")
 
 
 # --- 2. Sidebar for Uploads & Processing (FIXED) ---
@@ -85,7 +100,7 @@ with st.sidebar:
                     else:
                         st.error(f"Upload failed: {response.json().get('detail')}")
                 except requests.exceptions.ConnectionError:
-                    st.error("❌ API Connection Error.")
+                    st.error(f"❌ API Connection Error. Is the backend running at {API_BASE_URL}?")
                 except Exception as e:
                     st.error(f"An error occurred: {e}")
 
@@ -142,7 +157,6 @@ try:
     
     if list_resp.status_code == 200:
         contracts = list_resp.json().get('items', [])
-        # ... (rest of the list display is unchanged) ...
         if not contracts:
             st.info("No contracts found matching your filters.")
         else:
@@ -188,6 +202,6 @@ try:
     else:
         st.error("Could not fetch contract list.")
 except requests.exceptions.ConnectionError:
-    st.error("❌ Connection Error: Cannot connect to backend API.")
+    st.error(f"❌ Connection Error: Cannot connect to backend API at {API_BASE_URL}.")
 except Exception as e:
     st.error(f"An error occurred while fetching list: {e}")
