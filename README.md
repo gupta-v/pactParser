@@ -1,4 +1,4 @@
-# 📄 PactParser: AI-Powered Contract Intelligence System
+# 📄 pactParser: AI-Powered Contract Intelligence System
 
 <div align="center">
 
@@ -25,7 +25,7 @@ Modern businesses in AR/SaaS platforms handle hundreds of contracts with varying
 - ⚠️ Compliance and legal risks
 - 📊 Poor business intelligence visibility
 
-**PactParser** solves this by providing an automated, AI-powered system that ingests contracts and delivers immediate, actionable intelligence with confidence scoring and gap analysis.
+**pactParser** solves this by providing an automated, AI-powered system that ingests contracts and delivers immediate, actionable intelligence with confidence scoring and gap analysis.
 
 ---
 
@@ -43,7 +43,7 @@ Modern businesses in AR/SaaS platforms handle hundreds of contracts with varying
 
 ### Data Extraction
 
-PactParser extracts critical business intelligence including:
+pactParser extracts critical business intelligence including:
 
 - **Party Identification**: Legal entities, signatories, and roles
 - **Financial Details**: Line items, totals, currencies, and tax information
@@ -127,8 +127,8 @@ PactParser extracts critical business intelligence including:
 **1. Clone the repository**
 
 ```bash
-git clone <your-repo-url>
-cd PactParser
+git clone https://github.com/gupta-v/pactParser
+cd pactParser
 ```
 
 **2. Create environment file**
@@ -275,7 +275,7 @@ For full interactive documentation, visit: http://localhost:8000/docs
 
 ## 📊 Scoring Algorithm
 
-PactParser implements a weighted scoring system (0-100 points):
+pactParser implements a weighted scoring system (0-100 points):
 
 | Category                   | Weight | Criteria                          |
 | -------------------------- | ------ | --------------------------------- |
